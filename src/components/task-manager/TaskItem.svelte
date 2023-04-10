@@ -4,24 +4,39 @@
 
 	export let task;
 	export let listIdx;
+    export let taskIdx;
 
 	let value = task.text;
 
 	function updateTask(event) {
         taskListStore.updateTask({
             id: task.id,
-            text: event.detail.taskText,
+            text: event.detail.value,
         }, listIdx)
 	}
+
+    function dragStart(e){
+        const data = {listIdx, taskIdx}
+        e.dataTransfer.setData('text/plain', JSON.stringify(data))
+    }
 </script>
 
-<div class="flex-it border border-solid p-2 rounded-xl bg-slate-500 mb-2 cursor-pointer">
+<div 
+draggable={true}
+on:dragstart={dragStart}
+class="flex-it border border-solid p-2 rounded-xl bg-slate-500 mb-2 cursor-pointer"
+>
 	<div class="flex-it">
 		<Editable bind:value on:editCancel={updateTask}>
 			<div class="flex-it flex-row">
 				<div class="flex flex-1">{task.text}</div>
 				<div class="flex items-end hover:text-red-600">
-					<svg
+					<button
+                        on:click|stopPropagation={() => {
+                            taskListStore.removeTask(listIdx, taskIdx);
+                        }}
+                    >
+                    <svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="16"
 						height="16"
@@ -37,6 +52,7 @@
 							d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
 						/>
 					</svg>
+                </button>
 				</div>
 			</div>
 		</Editable>

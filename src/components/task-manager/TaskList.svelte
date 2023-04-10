@@ -1,17 +1,53 @@
+<script context="module">
+	import { writable } from "svelte/store";
+
+    let listHoverId = writable(null);
+</script>
+
 <script>
     import TaskItem from "../../components/task-manager/TaskItem.svelte";
 	import { taskListStore } from "../../stores/tasks";
-    export let listName;
-    export let tasks;
+    import { flip } from "svelte/animate";
+    import { fade, fly } from "svelte/transition";
+	import Editable from "./Editable.svelte";
+
+    export let list;
     export let listIdx;
 
+    let value = list.text;
+
+    function drop(e){
+        const sourceJSON = e.dataTransfer.getData('text/plain');
+        const sourceData = JSON.parse(sourceJSON);
+
+        taskListStore.moveTask(sourceData, listIdx);
+        listHoverId.set(null);
+    }
+
+    function updateList(e){
+        taskListStore.updateList(e.detail.value, listIdx)
+    }
 </script>
 
+
 <div class="flex-it h-full w-80 max-w-sm min-h-full m-2 my-0">
-    <div class="bg-slate-400 flex-it rounded-xl max-h-full border-2 border-gray-500">
+    <div 
+    on:dragenter={() => listHoverId.set(list.id)}
+    on:dragover|preventDefault={() => {}}
+    on:drop={drop}
+    class:hovering={list.id === $listHoverId}
+    class="bg-slate-400 flex-it rounded-xl max-h-full border-2 border-gray-500"
+    >
         <div class="flex-it m-3">
+            <Editable
+                bind:value={value}
+                on:editCancel={updateList}
+                >
             <div class="flex-it flex-row">
-                <div class="text-xl text-left font-bold mr-2">{listName}</div>
+                <div class="text-xl text-left font-bold mr-2">{list.text}</div>
+                <button on:click|stopPropagation={() => {
+                    taskListStore.removeList(listIdx);
+                }}>
                 <div class="flex hover:text-red-600 items-center">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -30,14 +66,23 @@
                         />
                     </svg>
                 </div>
+            </button>
             </div>
+            </Editable>
         </div>
         <div class="overflow-x-hidden overflow-y-auto with-scrollbar p-2">
-            {#each tasks as task (task.id)}
+            {#each list.items as task, taskIdx (task.id)}
+            <div
+            out:fade
+            in:fly={{x: 200}}
+            animate:flip
+            >
                 <TaskItem 
                 {task}
                 {listIdx}
+                {taskIdx}
                 />
+            </div>
             {/each}
         </div>
         <button 
@@ -45,3 +90,9 @@
         class="underline flex p-2"> + Add Task </button>
     </div>
 </div>
+
+<style>
+    .hovering {
+        border: 2px solid orange;
+    }
+</style>

@@ -31,7 +31,10 @@ const DEFAULT_DATA = [
 ];
 
 function createStore() {
-	const taskList = writable(DEFAULT_DATA);
+  const storedList = localStorage.getItem('task-manager-store');
+  const _taskList = storedList ? JSON.parse(storedList) : DEFAULT_DATA;
+
+	const taskList = writable(_taskList);
 	const { subscribe, update } = taskList;
 
 	return {
@@ -48,8 +51,8 @@ function createStore() {
   addList: () => {
     update((list) => [...list,
         {
-          id: `l-${list.length + 1}`,
-          text: `List ${list.length + 1}`,
+          id: new Date().getTime(),
+          text: "New List",
           items: []
         }
       ]);
@@ -65,8 +68,40 @@ function createStore() {
         ]
         return list;
       });
+    },
+    moveTask: (sourceData, moveToListIdx) => {
+      update(list => {
+        const [task] = list[sourceData.listIdx].items.splice(sourceData.taskIdx, 1);//removing task from the list
+        list[moveToListIdx].items.push(task); //adding task to the end of the list
+        return list;
+      })
+    },
+    removeTask: (listIdx, taskIdx) => {
+      update((list) => {
+        // list[listIdx].items.splice(taskIdx, 1); //removing task from the list using splice
+        list[listIdx].items = list[listIdx].items.filter((_, id) => id !== taskIdx);//removing task from the list using filter
+        return list;
+      })
+    },
+    removeList: (listIdx) => {
+      update((list) => {
+        list.splice(listIdx, 1);
+        return list;
+      })
+    },
+    updateList: (nexText, listIdx) => {
+      update((list) => {
+        list[listIdx].text = nexText;
+        return list;
+      })
     }
   };
 }
 
 export const taskListStore = createStore();
+
+taskListStore.subscribe((list) => {
+  if(list) {
+    localStorage.setItem('task-manager-store', JSON.stringify(list));
+  }
+})

@@ -1,9 +1,9 @@
-let items = [{id: "a", text: "Cooking"}, {id: "b", text: "Learn Svelte"}, {id: "c", text: "Watch a course"}];
+const items = ["a", "b", "c", "d", "e", "b", "b"];
 
-// TODO: Finish this function
-// TIP: use findIndex, don't forget to return the index from the function
-function lookIndex(id) {
+function removeItem(value) {
+    // TODO: Finish
+    // return items.filter
     
 }
 
-let index = lookIndex("b");
+const newItems = removeItem("b");
