@@ -1,17 +1,22 @@
 <script>
-    export let defaultValue;
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
+
+    export let value;
     let isEditing = false;
-    let value = defaultValue;
 </script>
 
 {#if isEditing}
 	<div class="flex-it">
-		<!-- <textarea bind:value={value}/> -->
         <textarea bind:value />
         <button 
-        on:click={() => isEditing = false}
+        on:click={() => {
+            isEditing = false;
+            dispatch('editCancel', {
+                taskText: value
+            });
+            }}
         class="flex underline"> Close </button>
-        
 	</div>
 {:else}
 <button on:click={() => isEditing = true}>

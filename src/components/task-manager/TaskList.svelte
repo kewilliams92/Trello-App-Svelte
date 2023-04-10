@@ -1,8 +1,10 @@
 <script>
     import TaskItem from "../../components/task-manager/TaskItem.svelte";
-
+	import { taskListStore } from "../../stores/tasks";
     export let listName;
     export let tasks;
+    export let listIdx;
+
 </script>
 
 <div class="flex-it h-full w-80 max-w-sm min-h-full m-2 my-0">
@@ -32,9 +34,14 @@
         </div>
         <div class="overflow-x-hidden overflow-y-auto with-scrollbar p-2">
             {#each tasks as task (task.id)}
-                <TaskItem {task} />
+                <TaskItem 
+                {task}
+                {listIdx}
+                />
             {/each}
         </div>
-        <button class="underline flex p-2"> + Add Task </button>
+        <button 
+        on:click={() => taskListStore.addTask(listIdx)}
+        class="underline flex p-2"> + Add Task </button>
     </div>
 </div>
