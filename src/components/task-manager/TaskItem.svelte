@@ -4,8 +4,8 @@
 
 	export let task;
 	export let listIdx;
-    export let taskIdx;
-
+	export let taskIdx;
+	
 	let value = task.text;
 
 	function updateTask(event) {
